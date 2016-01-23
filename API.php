@@ -25,9 +25,9 @@ else
 
 
 include('simple_html_dom.php');
-$html = file_get_html($name . '.html');
+//$html = file_get_html($name . '.html');
 $cmd='curl --proxy http://username:password@proxy:port "www.epguides.com/' . $name . '"';
-//$html=shell_exec($cmd); 
+$html=shell_exec($cmd); 
 foreach($html->find('div#eplist') as $e)
 {
     $data=$e->innertext . '<br>';
