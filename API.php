@@ -26,11 +26,17 @@ else
 
 include('simple_html_dom.php');
 //$html = file_get_html($name . '.html');
-$cmd='curl --proxy http://username:password@proxy:port "www.epguides.com/' . $name . '"';
-$html=shell_exec($cmd); 
+//$cmd='curl --proxy 172.16.114.173:3128 "www.epguides.com/' . $name . '"';
+$cmd='curl --proxy 172.16.114.173:3128 "www.epguides.com/' . $name . '/"';
+$html1=shell_exec($cmd); 
+$html = str_get_html($html1);
+//$e1=$html->find('div#eplist',0);
+
+//echo gettype($html);
+
 foreach($html->find('div#eplist') as $e)
 {
-    $data=$e->innertext . '<br>';
+   $data=$e->innertext . '<br>';
     $search=(string)$season . '-' . (string)$episode;
     //$pos is position of 2-6
     $pos = strpos($data, $search);
@@ -81,8 +87,8 @@ foreach($html->find('div#eplist') as $e)
     $epname=substr($epname,0,strlen($epname)-4);
 
     //echo '<br>'.$date.'<br>'.$epname;
-    
-     
+   
+     echo "sd";
 }
 
 ///// convert json
