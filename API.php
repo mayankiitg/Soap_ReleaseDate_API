@@ -27,7 +27,7 @@ else
 include('simple_html_dom.php');
 //$html = file_get_html($name . '.html');
 //$cmd='curl --proxy 172.16.114.173:3128 "www.epguides.com/' . $name . '"';
-$cmd='curl --proxy 172.16.114.173:3128 "www.epguides.com/' . $name . '/"';
+$cmd='curl --proxy http://username:passwd@ip:port "www.epguides.com/' . $name . '/"';
 $html1=shell_exec($cmd); 
 $html = str_get_html($html1);
 //$e1=$html->find('div#eplist',0);
