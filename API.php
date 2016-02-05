@@ -6,40 +6,46 @@ $path = parse_url($url, PHP_URL_PATH);
 
 $pathComponents = explode("/", trim($path, "/")); // trim to prevent
 
-                                              // empty array elements
-if(strcmp($pathComponents[1], "soap") === 0) // prints 'abc'
-{
-    //echo count($pathComponents);
-    $name=$pathComponents[2];
-    $season = $pathComponents[3];
-    $episode= $pathComponents[4];
+                                             
+/*
+*   url of the form temp.php/Suits/5/12
+*   or temp.php/today
 
-}
+*/
 
-else
-{
-    echo "not soap";
-}
+
+//echo count($pathComponents);
+$name=$pathComponents[1];
+$season = $pathComponents[2];
+$episode= $pathComponents[3];
+
 
 ////////////////////////////////
 //if url of the form soap/today then display all episodes releasing today
 include('simple_html_dom.php');
 
-if ($name==="today")
+
+//if arguement is today, run the script to cache the output
+if ($argv[1]==="today")
 {
     date_default_timezone_set('Asia/Kolkata');
-    // $mydate=getdate();
-    // $date_raw=$mydate;
-    // print('Next Date ' . date('Y-m-d', strtotime('-1 day', strtotime($date_raw))));
-    // Return date/time info of a timestamp; then format the output
-    $mydate=getdate();
+       
+
+    $date= date('d-m-Y',strtotime("-1 days"));
+    $timestamp = strtotime($date);
+
+    $day = date('l', $timestamp);
     
-    $day = $mydate[weekday];
-    $date = $mydate[mday];
-    if(strlen($date===1))
-        $date = '0' . $mydate[mday];
-    $date = $date . ' ' . substr($mydate[month], 0, 3) . ' ' . substr($mydate[year], 2, 2);
-    echo $date . ' ' . $day . '<br>';
+
+    $dateObj   = DateTime::createFromFormat('!m', intval(substr($date, 3, 2)));
+    $monthName = $dateObj->format('F'); // March
+
+    $date = substr($date, 0, 2) . ' ' . substr($monthName, 0, 3) . ' ' . substr($date, 8, 2);
+    
+    echo $day . ' ' . $date . "\n";
+
+
+
     $cmd='curl --proxy http://127.0.0.1:3128 "http://epguides.com/grid/"';
     $html1=shell_exec($cmd); 
     $html = str_get_html($html1);
@@ -67,7 +73,7 @@ if ($name==="today")
 
             $pos=strpos(htmlentities($html3), $date);
             if($pos===false)
-                echo $epname . "-->no new episodes" . '<br>';
+                echo $epname . "-->no new episodes" . "\n";
             else
             {
                 echo $epname;
@@ -82,16 +88,21 @@ if ($name==="today")
                 $pos1=$pos++;
                 $str1=substr(htmlentities($html3), $pos1, $pos2-$pos1+1);
                 $se=explode('-', $str1);
-                echo "-->Season " . $se[0] . " Episode " . $se[1] . '<br>';
+                echo "-->Season " . $se[0] . " Episode " . $se[1] . "\n";
             }
 
         }
     }
 
-
+    exit("");
 }
 
+//if today in url, redirect to cached txt file
+if($name=="today")
+    header("Location: ../../downloadToday.txt");
+
 //////////////////////////////////////////
+//here we fetch details of a specific episode
 else
 {
     //$html = file_get_html($name . '.html');
@@ -99,6 +110,11 @@ else
     $cmd='curl --proxy http://127.0.0.1:3128 "www.epguides.com/' . $name . '/"';
     $html1=shell_exec($cmd); 
     $html = str_get_html($html1);
+    //check if the series name is correct
+    $search = "The page cannot be found";
+    if(strpos($html, $search)===false)
+         exit("Whoa! something wrong there mate.");
+
     // echo $html;
     //$e1=$html->find('div#eplist',0);
 
@@ -113,8 +129,9 @@ else
          
         if ($pos===false)
         {
-            echo "Whoa! cool down.";
-            break;
+            exit("Whoa! something wrong there mate.");
+            // echo ;
+            // break;
         }
         //echo $data;
         $pos1=$pos;
