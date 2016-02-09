@@ -112,7 +112,7 @@ else
     $html = str_get_html($html1);
     //check if the series name is correct
     $search = "The page cannot be found";
-    if(strpos($html, $search)===false)
+    if(strpos($html, $search)===true)
          exit("Whoa! something wrong there mate.");
 
     // echo $html;
